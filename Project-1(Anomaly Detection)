@@ -1,1 +1,47 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import yfinance as yf
+from adtk.data import validate_series
+from adtk.visualization import plot
+from adtk.detector import *
 
+data= pd.read_csv('/content/monthly_csv.csv')
+
+**USING THRESHOLD DETECTION**
+
+data["Date"] = pd.to_datetime(data["Date"])
+data = data.set_index("Date")
+data = data["Mean"]
+
+threshold_detector= ThresholdAD(low= -0.5, high=0.75)
+anomalies=threshold_detector.detect(data)
+plot(data, anomaly= anomalies, anomaly_color="red", anomaly_tag= "marker")
+plot.show()
+
+**USING QUANTILE DETECTION**
+
+Quantile_detector= QuantileAD(low= 0.01, high=0.99)
+anomalies=Quantile_detector.fit_detect(data)
+plot(data, anomaly= anomalies, anomaly_color="red", anomaly_tag= "marker")
+plot.show()
+
+**USING Inter Quartile Range DETECTION**
+
+iqr_detector= InterQuartileRangeAD(c=1)
+anomalies=iqr_detector.fit_detect(data)
+plot(data, anomaly= anomalies, anomaly_color="red", anomaly_tag= "marker")
+plot.show()
+
+**USING PERSIST DETECTOR**
+
+persist_detector= PersistAD(c=3, side= "both")
+anomalies=persist_detector.fit_detect(data)
+plot(data, anomaly= anomalies, ts_linewidth=1, ts_markersize=3, anomaly_color="red")
+plot.show()
+
+**USING VOLATILITY DETECTOR**
+
+volatility_detector= VolatilityShiftAD(c=1, side="both", window= 30)
+anomalies=volatility_detector.fit_detect(data)
+plot(data, anomaly= anomalies,ts_linewidth=1, ts_markersize=3, anomaly_color="red")
+plot.show()
